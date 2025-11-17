@@ -17,4 +17,3 @@ LEFT JOIN visitors v
     ON DATE(v.created_at) = ds.day
 GROUP BY ds.day
 ORDER BY ds.day
-LIMIT 100;
