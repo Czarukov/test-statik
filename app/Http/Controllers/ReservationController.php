@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
 use App\Models\Visitor;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ReservationController extends Controller
 {
@@ -95,5 +97,37 @@ class ReservationController extends Controller
             ->with('success', 'Reservering succesvol aangemaakt!')
             ->with('reservation', $reservation)
             ->with('visitor_count', count($visitors));
+    }
+    public function showGraph(){
+        $startDate = Carbon::parse('2025-01-01');
+        $endDate = Carbon::parse('2025-01-31');
+
+        // Generate date series
+        $dates = [];
+        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+            $dates[] = $date->format('Y-m-d');
+        }
+
+        // Fetch visitors grouped by date
+        $visitors = DB::table('visitors')
+            ->select(DB::raw('DATE(visited_at) as day'), DB::raw('COUNT(*) as visitor_count'))
+            ->whereBetween('visited_at', [$startDate->startOfDay(), $endDate->endOfDay()])
+            ->groupBy(DB::raw('DATE(visited_at)'))
+            ->pluck('visitor_count', 'day');
+
+        // Fill in all dates with counts (0 if missing)
+        $result = [];
+        foreach ($dates as $date) {
+            $result[] = [
+                'day' => $date,
+                'visitor_count' => $visitors[$date] ?? 0
+            ];
+        }
+
+        // Pass data to the view
+        return view('reservation.graph', [
+            'days' => array_column($result, 'day'),
+            'visitor_counts' => array_column($result, 'visitor_count')
+        ]);
     }
 }
