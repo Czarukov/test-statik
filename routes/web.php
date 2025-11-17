@@ -7,5 +7,5 @@ Route::prefix('reservations')->name('reservations.')->group(function () {
     // Show the reservation form
     Route::get('/', [ReservationController::class, 'create'])->name('create');
     Route::post('/store', [ReservationController::class, 'store'])->name('store');
-    Route::get('/graph',[ReservationController::class, 'showGraph']);
+    Route::get('/graph', [ReservationController::class, 'showGraph'])->name('graph');
 });
