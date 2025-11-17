@@ -8,16 +8,18 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('reservations', function (Blueprint $table) {
+        Schema::create('visitors', function (Blueprint $table) {
             $table->id();
-            $table->date('date');
-            $table->string('timeslot');
+            $table->foreignId('reservation_id')->constrained()->onDelete('cascade');
+            $table->string('first_name');
+            $table->string('last_name');
+            $table->string('subscription', 20);
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('reservations');
+        Schema::dropIfExists('visitors');
     }
 };
